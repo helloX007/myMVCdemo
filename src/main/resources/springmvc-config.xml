@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--此文件负责整个mvc中的配置-->
+
+    <!--启用spring的一些annotation -->
+    <context:annotation-config/>
+
+    <!-- 配置注解驱动 可以将request参数与绑定到controller参数上 -->
+    <mvc:annotation-driven/>
+
+    <!-- org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，
+    它会像一个检查员，对进入DispatcherServlet的URL进行筛查，如果发现是静态资源的请求，
+    就将该请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理。 -->
+    <mvc:default-servlet-handler/>
+
+    <!--静态资源映射-->
+    <!--本项目把静态资源放在了webapp的statics目录下，资源映射如下-->
+    <mvc:resources mapping="/css/**" location="/WEB-INF/statics/css/"/>
+    <mvc:resources mapping="/js/**" location="/WEB-INF/statics/js/"/>
+    <mvc:resources mapping="/image/**" location="/WEB-INF/statics/image/"/>
+
+    <!-- 对模型视图名称的解析，即在模型视图名称添加前后缀(如果最后一个还是表示文件夹,则最后的斜杠不要漏了) 使用JSP-->
+    <!-- 默认的视图解析器 在上边的解析错误时使用 (默认使用html)- -->
+    <bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/views/"/><!--设置JSP文件的目录位置-->
+        <property name="suffix" value=".jsp"/>
+        <property name="exposeContextBeansAsAttributes" value="true"/>
+    </bean>
+
+    <!-- 自动扫描装配 -->
+    <context:component-scan base-package="com.example"/>
+
+    <!--配置拦截器-->
+    <mvc:interceptors>
+        <!--拦截器1-->
+        <mvc:interceptor>
+            <!--拦截器的作用路径  此项目为SpringMVC项目，Tomcat应用中配置的路径是以 /myMVCdemo/  开头的，
+            下面的路径是指  /myMVCdemo/  末尾的全路径-->
+            <mvc:mapping path="/home/hello"/>
+            <!-- 拦截中包含的不要被拦截的内容
+            <mvc:exclude-mapping path=""/>
+            -->
+            <!--定义在  </mvc:interceptor> 下的表示匹配指定路径的请求才进行拦截  -->
+            <bean class="com.example.service.CustomInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
